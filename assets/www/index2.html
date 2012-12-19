@@ -40,222 +40,222 @@
 
 <script type="text/javascript" src="cordova-2.1.0.js"></script>
 
-<!--<script type="text/javascript">-->
+<script type="text/javascript">
 
-<!--$(document).bind("pageinit", function () {-->
-
-
-    <!--var positionArr = [], initList = [-->
-        <!--//init map-->
-        <!--//声明地图对象，做一些地图的初始化操作-->
-        <!--//并把地图作为全局变量，供后面使用-->
-        <!--function () {-->
-            <!--window.lat = new google.maps.LatLng(30.277896, 110.156072);-->
-            <!--var mapOptions = {-->
-                <!--center:lat,-->
-                <!--zoom:15,-->
-                <!--mapTypeId:google.maps.MapTypeId.ROADMAP,-->
-                <!--panControl:false,-->
-                <!--zoomControl:true,-->
-                <!--mapTypeControl:false,-->
-                <!--scaleControl:false,-->
-                <!--streetViewControl:false,-->
-                <!--overviewMapControl:false-->
-
-            <!--};-->
-            <!--window.map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);-->
-
-            <!--/*google.maps.event.addListener(map, 'center_changed', function (event) {-->
-             <!--map.setCenter(lat);-->
-             <!--});*/-->
-        <!--},-->
-
-        <!--//描绘路线-->
-        <!--//监控当前位置信息的变化-->
-        <!--//每隔一段时间进行位置信息检测-->
-        <!--//并把检测结果放到一个路径的数组中，根据该数组画出整个行程路线-->
-        <!--function () {-->
-            <!--$("#start-geo").click(function (e) {-->
-                <!--$("#start-geo .ui-btn-text").text("结束旅途");-->
-                <!--$.mobile.loading('show', {-->
-                    <!--text:'正在为旅途确定您的起点...',-->
-                    <!--textVisible:true,-->
-                    <!--theme:'e'-->
-                <!--});-->
-                <!--navigator.geolocation.getCurrentPosition(function (position) {-->
-                    <!--$.mobile.loading('hide');-->
-                    <!--//获取当前起点坐标-->
-                    <!--var startLat = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);-->
-                    <!--positionArr.push(startLat);-->
-                    <!--var marker = new google.maps.Marker({-->
-                        <!--position:startLat,-->
-                        <!--map:map-->
-                    <!--});-->
-
-                    <!--//初始化画路线工具-->
-                    <!--var options = { frequency:6000 }, polyOptions, poly;-->
-                    <!--polyOptions = {-->
-                        <!--strokeColor:'black',-->
-                        <!--strokeOpacity:1.0,-->
-                        <!--strokeWeight:1.5-->
-                    <!--};-->
-                    <!--poly = new google.maps.Polyline(polyOptions);-->
-                    <!--poly.setMap(map);-->
+$(document).bind("pageinit", function () {
 
 
-                    <!--addLatLng(startLat);-->
+    var positionArr = [], initList = [
+        //init map
+        //声明地图对象，做一些地图的初始化操作
+        //并把地图作为全局变量，供后面使用
+        function () {
+            window.lat = new google.maps.LatLng(30.277896, 110.156072);
+            var mapOptions = {
+                center:lat,
+                zoom:15,
+                mapTypeId:google.maps.MapTypeId.ROADMAP,
+                panControl:false,
+                zoomControl:true,
+                mapTypeControl:false,
+                scaleControl:false,
+                streetViewControl:false,
+                overviewMapControl:false
+
+            };
+            window.map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+            /*google.maps.event.addListener(map, 'center_changed', function (event) {
+             map.setCenter(lat);
+             });*/
+        },
+
+        //描绘路线
+        //监控当前位置信息的变化
+        //每隔一段时间进行位置信息检测
+        //并把检测结果放到一个路径的数组中，根据该数组画出整个行程路线
+        function () {
+            $("#start-geo").click(function (e) {
+                $("#start-geo .ui-btn-text").text("结束旅途");
+                $.mobile.loading('show', {
+                    text:'正在为旅途确定您的起点...',
+                    textVisible:true,
+                    theme:'e'
+                });
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    $.mobile.loading('hide');
+                    //获取当前起点坐标
+                    var startLat = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    positionArr.push(startLat);
+                    var marker = new google.maps.Marker({
+                        position:startLat,
+                        map:map
+                    });
+
+                    //初始化画路线工具
+                    var options = { frequency:6000 }, polyOptions, poly;
+                    polyOptions = {
+                        strokeColor:'black',
+                        strokeOpacity:1.0,
+                        strokeWeight:1.5
+                    };
+                    poly = new google.maps.Polyline(polyOptions);
+                    poly.setMap(map);
 
 
-                    <!--function addLatLng(latLng) {-->
-                        <!--var path = poly.getPath();-->
-                        <!--path.push(latLng);-->
-                        <!--map.setCenter(latLng);-->
-                    <!--}-->
+                    addLatLng(startLat);
 
 
-                    <!--//在web 页面 模拟一下多个路径的情况 --------------------------------------->
-                    <!--function emulatePosition() {-->
-                        <!--if (emulatePosition.p) {-->
-                            <!--emulatePosition.p.x -= Math.random() * 0.001;-->
-                            <!--emulatePosition.p.y -= Math.random() * 0.003;-->
-
-                        <!--} else {-->
-                            <!--emulatePosition.p = {-->
-                                <!--x:positionArr[0].lat(),-->
-                                <!--y:positionArr[0].lng()-->
-                            <!--}-->
-                        <!--}-->
-                        <!--var newLat = new google.maps.LatLng(emulatePosition.p.x, emulatePosition.p.y);-->
-                        <!--positionArr.push(newLat);-->
-                        <!--addLatLng(newLat);-->
-
-                        <!--setTimeout(function () {-->
-                            <!--emulatePosition();-->
-                        <!--}, options.frequency);-->
-                    <!--}-->
-
-                    <!--emulatePosition();-->
-                <!--}, function(msg){-->
-                    <!--alert(msg);-->
-                <!--});-->
-            <!--});-->
-        <!--},-->
+                    function addLatLng(latLng) {
+                        var path = poly.getPath();
+                        path.push(latLng);
+                        map.setCenter(latLng);
+                    }
 
 
-        <!--// 初始化页面级别的一些通用逻辑-->
-        <!--//页面中的按钮事件统一处理-->
-        <!--function () {-->
-            <!--$('#main-page').live("pagebeforehide", function (e, ui) {-->
-                <!--$('#map_canvas').css({visibility:"hidden"});-->
-            <!--});-->
-            <!--$('#main-page').live("pageshow", function (e, ui) {-->
-                <!--$('#map_canvas').css({visibility:"visible"});-->
-            <!--});-->
+                    //在web 页面 模拟一下多个路径的情况 -------------------------------------
+                    function emulatePosition() {
+                        if (emulatePosition.p) {
+                            emulatePosition.p.x -= Math.random() * 0.001;
+                            emulatePosition.p.y -= Math.random() * 0.003;
 
-        <!--},-->
+                        } else {
+                            emulatePosition.p = {
+                                x:positionArr[0].lat(),
+                                y:positionArr[0].lng()
+                            }
+                        }
+                        var newLat = new google.maps.LatLng(emulatePosition.p.x, emulatePosition.p.y);
+                        positionArr.push(newLat);
+                        addLatLng(newLat);
 
-        <!--//选择照片按钮-->
-        <!--function () {-->
-            <!--// new-photo 按钮点击事件触发函数-->
-            <!--$('#new-photo').click(function (e) {-->
-                <!--// 使用设备上的摄像头拍照，并获得Base64编码字符串格式的图像-->
-                <!--navigator.camera.getPicture(function (imgUrl) {-->
-                    <!--$('#back-hand').click();-->
-                    <!--markImg(imgUrl, positionArr[positionArr.length - 1]);-->
-                    <!--navigator.notification.vibrate(100);-->
-                <!--}, onFail, {-->
-                    <!--quality:30,-->
-                    <!--destinationType:1,-->
-                    <!--sourceType:1,-->
-                    <!--targetWidth:150,-->
-                    <!--targetHeight:150-->
-                <!--});-->
-            <!--});-->
+                        setTimeout(function () {
+                            emulatePosition();
+                        }, options.frequency);
+                    }
 
-            <!--$('#select-photo').click(function (e) {-->
-                <!--//当成功得到一张照片的URI后被调用-->
-                <!--navigator.camera.getPicture(function (imgUrl) {-->
-                    <!--$('#back-hand').click();-->
-                    <!--markImg(imgUrl, positionArr[positionArr.length - 1]);-->
-                    <!--navigator.notification.vibrate(100);-->
-                <!--}, onFail, {-->
-                    <!--quality:30,-->
-                    <!--destinationType:1,-->
-                    <!--sourceType:0,-->
-                    <!--targetWidth:150,-->
-                    <!--targetHeight:150-->
-                <!--});-->
-            <!--});-->
-
-            <!--$("#govoice").click(function () {-->
-                <!--// 采集操作成功完成后的回调函数-->
-                <!--var captureSuccess = function (mediaFiles) {-->
-                    <!--var i, path, len;-->
-                    <!--for (i = 0, len = mediaFiles.length; i < len; i += 1) {-->
-                        <!--path = mediaFiles[i].fullPath;-->
-                        <!--var me = new Media(path, function () {-->
-                        <!--}, function (s) {-->
-                        <!--});-->
-                        <!--me.play();-->
-                    <!--}-->
-                <!--};-->
-
-                <!--// 采集操作出错后的回调函数-->
-                <!--var captureError = function (error) {-->
-                    <!--navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');-->
-                <!--};-->
-
-                <!--// 开始采集音频-->
-                <!--navigator.device.capture.captureAudio(captureSuccess, captureError,{limit:1});-->
-            <!--});-->
-
-            <!--// 当有错误发生时触发此函数-->
-            <!--function onFail(mesage) {-->
-                <!--alert('Failed because: ' + mesage);-->
-            <!--}-->
-
-            <!--function markImg(imgSrc, position) {-->
-                <!--var marker = new google.maps.Marker({-->
-                    <!--position:position,-->
-                    <!--map:map-->
-                <!--});-->
-                <!--var content = '<div style="text-align: center;"><img style="margin:0 auto;width:140px;" src="' + imgSrc + '"/></div>';-->
-                <!--attachInfowindow(marker, content);-->
-            <!--}-->
-
-            <!--function attachInfowindow(marker, content) {-->
-                <!--var infowindow = new google.maps.InfoWindow({-->
-                    <!--content:content-->
-                <!--});-->
-                <!--google.maps.event.addListener(marker, 'click', function () {-->
-                    <!--infowindow.open(map, marker);-->
-                <!--});-->
-            <!--}-->
-        <!--},-->
-
-            <!--function(){-->
-                <!--$.mobile.loadPage('#voice');-->
-                <!--$.mobile.loadPage('#photo');-->
-            <!--}-->
-    <!--];-->
+                    emulatePosition();
+                }, function(msg){
+                    alert(msg);
+                });
+            });
+        },
 
 
-    <!--/**-->
-     <!--* init func list-->
-     <!--* need to show more information-->
-     <!--*-->
-     <!--*/-->
-    <!--if(!window.initall){-->
-        <!--window.initall = true;-->
-        <!--for (var i = 0; i < initList.length; i++) {-->
-            <!--initList[i].call(this);-->
-        <!--}-->
-    <!--}-->
+        // 初始化页面级别的一些通用逻辑
+        //页面中的按钮事件统一处理
+        function () {
+            $('#main-page').live("pagebeforehide", function (e, ui) {
+                $('#map_canvas').css({visibility:"hidden"});
+            });
+            $('#main-page').live("pageshow", function (e, ui) {
+                $('#map_canvas').css({visibility:"visible"});
+            });
 
-<!--});-->
+        },
+
+        //选择照片按钮
+        function () {
+            // new-photo 按钮点击事件触发函数
+            $('#new-photo').click(function (e) {
+                // 使用设备上的摄像头拍照，并获得Base64编码字符串格式的图像
+                navigator.camera.getPicture(function (imgUrl) {
+                    $('#back-hand').click();
+                    markImg(imgUrl, positionArr[positionArr.length - 1]);
+                    navigator.notification.vibrate(100);
+                }, onFail, {
+                    quality:30,
+                    destinationType:1,
+                    sourceType:1,
+                    targetWidth:150,
+                    targetHeight:150
+                });
+            });
+
+            $('#select-photo').click(function (e) {
+                //当成功得到一张照片的URI后被调用
+                navigator.camera.getPicture(function (imgUrl) {
+                    $('#back-hand').click();
+                    markImg(imgUrl, positionArr[positionArr.length - 1]);
+                    navigator.notification.vibrate(100);
+                }, onFail, {
+                    quality:30,
+                    destinationType:1,
+                    sourceType:0,
+                    targetWidth:150,
+                    targetHeight:150
+                });
+            });
+
+            $("#govoice").click(function () {
+                // 采集操作成功完成后的回调函数
+                var captureSuccess = function (mediaFiles) {
+                    var i, path, len;
+                    for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                        path = mediaFiles[i].fullPath;
+                        var me = new Media(path, function () {
+                        }, function (s) {
+                        });
+                        me.play();
+                    }
+                };
+
+                // 采集操作出错后的回调函数
+                var captureError = function (error) {
+                    navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
+                };
+
+                // 开始采集音频
+                navigator.device.capture.captureAudio(captureSuccess, captureError,{limit:1});
+            });
+
+            // 当有错误发生时触发此函数
+            function onFail(mesage) {
+                alert('Failed because: ' + mesage);
+            }
+
+            function markImg(imgSrc, position) {
+                var marker = new google.maps.Marker({
+                    position:position,
+                    map:map
+                });
+                var content = '<div style="text-align: center;"><img style="margin:0 auto;width:140px;" src="' + imgSrc + '"/></div>';
+                attachInfowindow(marker, content);
+            }
+
+            function attachInfowindow(marker, content) {
+                var infowindow = new google.maps.InfoWindow({
+                    content:content
+                });
+                google.maps.event.addListener(marker, 'click', function () {
+                    infowindow.open(map, marker);
+                });
+            }
+        },
+
+            function(){
+                $.mobile.loadPage('#voice');
+                $.mobile.loadPage('#photo');
+            }
+    ];
 
 
-<!--</script>-->
+    /**
+     * init func list
+     * need to show more information
+     *
+     */
+    if(!window.initall){
+        window.initall = true;
+        for (var i = 0; i < initList.length; i++) {
+            initList[i].call(this);
+        }
+    }
+
+});
+
+
+</script>
 
 
 <script type="text/javascript" charset="utf-8">
