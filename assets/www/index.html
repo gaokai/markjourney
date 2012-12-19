@@ -27,6 +27,10 @@
     .ui-btn {
         z-index: 10;
     }
+
+    #content {
+        z-index: 1000000;
+    }
 </style>
 
 
@@ -42,36 +46,39 @@
 <script type="text/javascript">
 $(document).bind("pageinit", function () {
 
+    var MarkJour = (function(){
+        var lat = new google.maps.LatLng(30.277896, 110.156072);
+        var map = initMap('map_canvas', {
+            center:lat,
+            zoom:15,
+            mapTypeId:google.maps.MapTypeId.ROADMAP,
+            panControl:false,
+            zoomControl:true,
+            mapTypeControl:false,
+            scaleControl:false,
+            streetViewControl:false,
+            overviewMapControl:false
+        });
+        var positionArr = [];
 
-    var positionArr = [], initList = [
-        //init map
-        //声明地图对象，做一些地图的初始化操作
-        //并把地图作为全局变量，供后面使用
-        function () {
-            window.lat = new google.maps.LatLng(30.277896, 110.156072);
-            var mapOptions = {
-                center:lat,
-                zoom:15,
-                mapTypeId:google.maps.MapTypeId.ROADMAP,
-                panControl:false,
-                zoomControl:true,
-                mapTypeControl:false,
-                scaleControl:false,
-                streetViewControl:false,
-                overviewMapControl:false
+        /**
+         * 初始化地图，返回地图实例
+         */
+        function initMap(id, config) {
+            new google.maps.Map(document.getElementById(id), config);
+        }
 
-            };
-            window.map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-            /*google.maps.event.addListener(map, 'center_changed', function (event) {
-             map.setCenter(lat);
-             });*/
-        },
+        return {
+            initStartJour: function(){
 
-        function () {
-            //防止加载其他页面的时候主页面状态丢失
+            },
+        }
 
-        },
+    })();
+
+   initList = [
+
 
         //描绘路线
         //监控当前位置信息的变化
@@ -138,7 +145,7 @@ $(document).bind("pageinit", function () {
                     }
 
                     emulatePosition();
-                }, function(msg){
+                }, function (msg) {
                     alert(msg);
                 });
             });
@@ -191,25 +198,64 @@ $(document).bind("pageinit", function () {
             });
 
             $("#govoice").click(function () {
-                // 采集操作成功完成后的回调函数
-                var captureSuccess = function (mediaFiles) {
-                    var i, path, len;
-                    for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-                        path = mediaFiles[i].fullPath;
-                        var me = new Media(path, function () {
-                        }, function (s) {
-                        });
-                        me.play();
-                    }
-                };
+                var Record = new function () {
+                    var self = this;
+                    var src = "test3.mp3";
 
-                // 采集操作出错后的回调函数
-                var captureError = function (error) {
-                    navigator.notification.alert('Error code: ' + error.code, null, 'Capture Error');
-                };
+                    var mediaRec = new Media(src, function () {
+                    }, function () {
+                    });
 
-                // 开始采集音频
-                navigator.device.capture.captureAudio(captureSuccess, captureError,{limit:1});
+                    var timer = null;
+                    var status;
+
+
+                    this.start = function () {
+                        // 开始录制音频
+                        mediaRec.startRecord();
+                        // 10秒钟后停止录制
+                        var recTime = 0;
+                        timer = setInterval(function () {
+                            recTime = recTime + 1;//录制的 second
+                            //超过10分钟自动停止
+                            if (recTime > 60 * 10) {
+                                self.stop();
+                            }
+                        }, 1000);
+                    };
+
+                    this.stop = function () {
+                        clearInterval(timer);
+                        mediaRec.stopRecord();
+                    };
+
+                    this.play = function () {
+                        var play, mediaTimer = null;
+
+                        // Get the new media file
+                        play = new Media(src, function () {
+                            clearInterval(mediaTimer);
+                        }, null);
+                        play.play();
+
+                        // Update media position every second
+                        mediaTimer = setInterval(function () {
+                            // get media position
+                            play.getCurrentPosition(
+                                    // success callback
+                                    function (position) {
+                                        if (position > -1) {
+                                            status.html("已播放: " + position + " sec");
+                                        } else {
+                                            //clearInterval(mediaTimer);
+                                        }
+                                    }
+                            );
+                        }, 1000);
+
+                    };
+                };
+                Record.init();
             });
 
             // 当有错误发生时触发此函数
@@ -236,11 +282,11 @@ $(document).bind("pageinit", function () {
             }
         },
 
-            function(){
-                $.mobile.loadPage('#voice');
-                $.mobile.loadPage('#photo');
+        function () {
+            $.mobile.loadPage('#voice');
+            $.mobile.loadPage('#photo');
 //                $.mobile.loadPage('#main-page');
-            }
+        }
     ];
 
 
@@ -249,7 +295,7 @@ $(document).bind("pageinit", function () {
      * need to show more information
      *
      */
-    if(!window.initall){
+    if (!window.initall) {
         window.initall = true;
         for (var i = 0; i < initList.length; i++) {
             initList[i].call(this);
@@ -264,29 +310,12 @@ $(document).bind("pageinit", function () {
 </head>
 <body>
 
-<div data-role="page" id="home" data-title="记录旅途" style="background:url(http://img03.taobaocdn.com/tps/i3/T1Ee.dXohXXXc2BHQ4-450-626.jpg) no-repeat;">
-    <div data-role="header">
-        <h1>旅行</h1>
-        <a href="#main-page" id="start-jour" data-icon="check">记录旅途</a>
-    </div>
-    <div data-role="content">
-
-    </div>
-    <div data-role="footer" data-position="fixed" class="ui-bar">
-        <a href="index.html" data-role="button" data-icon="plus">我的旅途</a>
-        <a href="index.html" data-role="button" data-icon="arrow-u">他人路线</a>
-
-    </div>
-</div>
 
 <!-- Home -->
 <div data-role="page" id="main-page" data-title="记录旅途">
     <div data-role="header">
-        <a id="start-geo" data-role="button"  data-icon="plus">开始出发</a>
-        <div data-role="controlgroup" class="ui-btn-right" data-inline="true" data-type="horizontal">
-            <a id="gophoto" href="#photo" data-rel="dialog" data-transition="flip" data-role="button" data-icon="plus">拍照</a>
-            <a href="#voice" data-role="button"  data-icon="plus">录音</a>
-        </div>
+        <a id="return" data-role="button" data-icon="plus">返回</a>
+        <a id="start-go" data-role="button" data-icon="plus">开始出发</a>
     </div>
     <div data-role="content">
     </div>
@@ -301,13 +330,8 @@ $(document).bind("pageinit", function () {
     </div>
 </div>
 
-<div data-role="page" id="voice" data-title="录音">
-    <div data-role="content" >
-        <a id="govoice" data-role="button" data-theme="a">开始录音</a>
-        <a data-rel="back" data-role="button">返回</a>
-    </div>
-</div>
 
 <div id="map_canvas" style="visibility:hidden;width:100%; height:100%"></div>
+
 </body>
 </html>
